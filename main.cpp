@@ -2,17 +2,42 @@
 #include <SDL2/SDL_ttf.h>
 #include <string> 
 #include <iostream>
+#include <vector>
 using namespace std; 
 
 const int SCREEN_WIDTH = 800 ; 
 const int SCREEN_HEIGHT = 600; 
-
+const int BUTTON_WIDTH = 200; 
+const int BUTTON_HEIGHT = 100; 
+const int BUTTON_PADDING = 10 ;
 struct Button {
 	SDL_Rect rect; 
 	SDL_Color color; 
 	string label ;
 	SDL_Color labelColour;
+	
 }; 
+
+vector<Button> generateButtons(){
+	vector<Button> buttons; 
+	string labels[4][4] = {
+		{"7","8","9","/"},
+		{"4","5","6","*"},
+		{"1","2","3","-"},
+		{"0","C","=","+"}}; 
+	int startX = (SCREEN_WIDTH - (4 * BUTTON_WIDTH + 3 * BUTTON_PADDING)) / 2 ; 
+	int startY = (SCREEN_HEIGHT - (4 * BUTTON_HEIGHT + 3 * BUTTON_PADDING)) /2 ; 
+	for(int i = 0 ; i < 4 ; i ++ ) { 
+		for (int j = 0 ; j < 4 ; j ++) {
+			Button button ; 
+			button.rect = {startX + j * (BUTTON_WIDTH + BUTTON_PADDING), startY + i * (BUTTON_WIDTH + BUTTON_PADDING)  ,BUTTON_WIDTH ,BUTTON_HEIGHT} ; 
+			button.color = {0,128,255,255}; 
+			button.label = labels[i][j];
+			buttons.push_back(button); 
+		}
+	}
+	return buttons; 
+}
 void buttonText(SDL_Renderer* renderer, TTF_Font* font , Button& button) {
 	button.labelColour = {255,255,255,255};	
 	SDL_Surface* textSurface = TTF_RenderText_Blended(font, button.label.c_str(), button.labelColour); 
@@ -38,11 +63,8 @@ void buttonText(SDL_Renderer* renderer, TTF_Font* font , Button& button) {
 	SDL_DestroyTexture(textTexture) ;
 
 };
-void createButton(SDL_Renderer* renderer , TTF_Font* font){
-	Button button ;
-	button.rect = {300, 200 , 200 ,100 } ; 
-	button.color = {0,128,255,255}; 
-	button.label = "Click me!" ; 	
+void createButton(SDL_Renderer* renderer , TTF_Font* font, Button button){
+
 
 	SDL_SetRenderDrawColor(renderer,button.color.r, button.color.g , button.color.b , button.color.a);
 	SDL_RenderFillRect(renderer, &button.rect); 	
@@ -90,7 +112,11 @@ void openWindow(){
 			}
 		}
 		SDL_SetRenderDrawColor(renderer, 255, 255 ,255 ,255 ) ; 
-		createButton(renderer,font );
+		SDL_RenderClear(renderer); 
+		vector<Button> buttons = generateButtons(); 
+		for (auto& button : buttons) {
+			createButton(renderer,font,button); 
+		}
 	}
 	TTF_CloseFont(font); 
 	SDL_DestroyRenderer(renderer);
